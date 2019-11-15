@@ -199,6 +199,15 @@ public class MyILOCGenerator extends ILOCGenerator
         emit(node, PUSH, REG_BP);
         addComment(node, "start prologue");
         emit(node, I2I, REG_SP, REG_BP);
+        List<ASTFunction.Parameter> revParams = new ArrayList<ASTFunction.Parameter>(node.parameters);
+        Collections.reverse(revParams);
+        for (ASTFunction.Parameter e : revParams) {
+            copyCode(node, node); // Second node needs to be changed
+            ILOCOperand destReg = getTempReg(node);
+            Symbol s = new Symbol(e.name, e.type);
+            ILOCOperand op = indexedOffset(node, s, destReg);
+            emit(node, LOAD_AI, op, destReg);
+        }
         emitLocalVarStackAdjustment(node);
         addComment(node, "end prologue");
 
